@@ -1,9 +1,3 @@
----
-output:
-  html_document:
-    fig_caption: yes
-    keep_md: yes
----
 # Peer Assesment 1
 ###### Patrick McLaughlin 07/17/2015
 
@@ -14,7 +8,8 @@ output:
 
 - Load the activity.csv into the dataset dataframe
 
-```{r}
+
+```r
 dataset <- read.csv('activity.csv')
 ```
 
@@ -24,7 +19,8 @@ dataset <- read.csv('activity.csv')
 - Plot in a histogram
 - Calculate the mean and median steps per day
 
-```{r Steps Per Day}
+
+```r
 library(plyr)
 
 completeds <- dataset[complete.cases(dataset),]
@@ -32,10 +28,24 @@ completeds <- dataset[complete.cases(dataset),]
 stepsPerDay <- ddply(completeds, c("date"), function(x) colSums(x["steps"], na.rm=TRUE))
 
 hist(stepsPerDay$steps, breaks = 10, main = "Steps Per Day", xlab = "Step Amount", ylab = "Day Count")
+```
 
+![](PA1_template_files/figure-html/Steps Per Day-1.png) 
+
+```r
 mean(stepsPerDay$steps)
+```
 
+```
+## [1] 10766.19
+```
+
+```r
 median(stepsPerDay$steps)
+```
+
+```
+## [1] 10765
 ```
 
 ## What is the average daily activity pattern?
@@ -45,12 +55,21 @@ median(stepsPerDay$steps)
 
 
 
-```{r Daily Activity Pattern}
+
+```r
 avgStepsPerInterval <- ddply(completeds, c("interval"), function(x) colMeans(x["steps"], na.rm=TRUE))
 
 plot(avgStepsPerInterval$interval, avgStepsPerInterval$steps, type="l", xlab="Interval", ylab="Steps", main = "Average Steps Per Interval")
+```
 
+![](PA1_template_files/figure-html/Daily Activity Pattern-1.png) 
+
+```r
 avgStepsPerInterval[which.max(avgStepsPerInterval$steps),]$interval
+```
+
+```
+## [1] 835
 ```
 
 
@@ -64,7 +83,8 @@ avgStepsPerInterval[which.max(avgStepsPerInterval$steps),]$interval
 - Calculate the mean and median steps per day
 
 
-```{r Imputing Missing Values}
+
+```r
 avgStepsPerInterval = rename(avgStepsPerInterval, c("steps" = "avgSteps"))
 
 mdataset <- merge(dataset, avgStepsPerInterval, by="interval")
@@ -76,10 +96,24 @@ newDataset <- mdataset[,c(1,2,3)]
 newStepsPerDay <- ddply(newDataset, c("date"), function(x) colSums(x["steps"], na.rm=TRUE))
 
 hist(newStepsPerDay$steps, breaks = 10, main = "Steps Per Day", xlab = "Step Amount", ylab = "Day Count")
+```
 
+![](PA1_template_files/figure-html/Imputing Missing Values-1.png) 
+
+```r
 mean(newStepsPerDay$steps)
+```
 
+```
+## [1] 10766.19
+```
+
+```r
 median(newStepsPerDay$steps)
+```
+
+```
+## [1] 10766.19
 ```
 
 The mean stayed the same bu the median shifted slightly.  The distribution became more centralized as well.
@@ -90,7 +124,8 @@ The mean stayed the same bu the median shifted slightly.  The distribution becam
 - Create a new column that stores weekend or weekday, based on the date
 - Calculate average stepsby interval and dayOfWeek
 - Plot the average steps by interval and dayOfWeek
-```{r Weekdays vs Weekends}
+
+```r
 weekdayDataset <- dataset
 
 weekdayDataset$dayOfWeek <- ifelse(weekdays(as.Date(weekdayDataset$date)) == "Saturday", "weekend", 
@@ -102,5 +137,6 @@ avgStepsWEWD <- ddply(weekdayDataset, c("interval", "dayOfWeek"), function(x) co
 library(lattice)
 
 xyplot(steps ~ interval| dayOfWeek, data = avgStepsWEWD, type = "l", xlab = "Hour Interval", ylab = "Average Steps", layout=c(1,2))
-
 ```
+
+![](PA1_template_files/figure-html/Weekdays vs Weekends-1.png) 
